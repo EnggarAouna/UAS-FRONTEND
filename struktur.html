@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="flex flex-col mt-3">
+        <label for="name">Nama Produk</label>
+        <input type="name" id="nama_produk" placeholder="masukan nama produk disini">
+        <label for="name">Nama Pedagang</label>
+        <input type="name" id="nama_pedagang" placeholder="masukan nama pedagang disini">
+        <label for="name">Lokasi</label>
+        <input type="name" id="lokasi" placeholder="masukan lokasi disini">
+        <label for="name">Kontak</label>
+        <input type="name" id="kontak" placeholder="masukan kontak disini">
+        <label for="name">Jumlah Produk</label>
+        <input type="name"  id="jumlah_produk" placeholder="masukan jumlah produk disini">
+
+        <button class="bg-red-500 my-5" id="button" onclick="saveData()">Simpan</button>
+    </div>
+
+
+    <table class="min-w-full border-collapse block md:table my-5">
+        <thead class="block md:table-header-group">
+            <tr
+                class="border border-grey-500 md:border-none block md:table-row absolute -top-full md:top-auto -left-full md:left-auto  md:relative ">
+                <th
+                    class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">
+                    No</th>
+                <th
+                    class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">
+                    Nama Produk</th>
+                <th
+                    class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">
+                    Nama Pedagang</th>
+                <th
+                    class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">
+                    Lokasi</th>
+                <th
+                    class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">
+                    Kontak</th>
+                <th
+                    class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">
+                    Jumlah Produk</th>
+                <th
+                    class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">
+                    Action</th>
+            </tr>
+        </thead>
+        <tbody class="block md:table-row-group" id="sellers">
+
+        </tbody>
+    </table>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        const getSeller = async () => {
+            try {
+                const response = await axios.get('http://103.163.110.11:3031/sellers');
+                const sellers = response.data;
+                let bucket = '';
+                sellers.forEach((seller, i) => {
+                    bucket += `
+            <tr>
+                <td class="text-center border border-slate-600 px-4 py-2">${i + 1}</td>
+                    <td class="text-left border border-slate-600 px-4 py-2">${seller.nama_produk}</td>
+                    <td class="text-left border border-slate-600 px-4 py-2">${seller.nama_pedagang}</td>
+                    <td class="text-center border border-slate-600 px-4 py-2">${seller.lokasi}</td>
+                    <td class="text-center border border-slate-600 px-4 py-2">${seller.kontak}</td>
+                    <td class="text-center border border-slate-600 px-4 py-2">${seller.jumlah_produk}</td>
+                    <td class="text-center border border-slate-600 px-4 py-2">
+                        <button class="bg-red-500 h-12 w-12" onclick="editData('${seller.id}', '${seller.nama_produk}', '${seller.nama_pedagang}', '${seller.lokasi}', '${seller.kontak}', '${seller.jumlah_produk}')" class="bg-blue-500 hover:bg-blue-700 text-white py-1 px-3 rounded">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="bg-red-500 w-12 h-12" onclick="deleteData(${seller.id})" class="bg-red-500 hover:bg-red-700 text-white py-1 px-4 rounded">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+            </tr>
+          `;
+                });
+                document.getElementById('sellers').innerHTML = bucket;
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+        getSeller();
+
+
+        const editData = (id, nama_produk, nama_pedagang, lokasi, kontak, jumlah_produk) => {
+            document.getElementById('nama_produk').value = nama_produk;
+            document.getElementById('nama_pedagang').value = nama_pedagang;
+            document.getElementById('lokasi').value = lokasi;
+            document.getElementById('kontak').value = kontak;
+            document.getElementById('jumlah_produk').value = jumlah_produk;
+            document.getElementById('button').innerText = 'Ubah';
+            document.getElementById('button').setAttribute('onclick', `updateData(${id})`);
+        };
+
+        const updateData = async (id) => {
+            try {
+                const nama_produk = document.getElementById('nama_produk').value;
+                const nama_pedagang = document.getElementById('nama_pedagang').value;
+                const lokasi = document.getElementById('lokasi').value;
+                const kontak = document.getElementById('kontak').value;
+                const jumlah_produk = document.getElementById('jumlah_produk').value;
+                const text = 'Apakah Anda yakin ingin mengubah data?';
+                if (confirm(text)) {
+                    await axios.patch(`http://103.163.110.11:3031/sellers/${id}`, {
+                        nama_produk: nama_produk,
+                        nama_pedagang: nama_pedagang,
+                        lokasi: lokasi,
+                        kontak: kontak,
+                        jumlah_produk: jumlah_produk
+                    });
+
+                    // Reset form fields
+                    document.getElementById('nama_produk').value = '';
+                    document.getElementById('nama_pedagang').value = '';
+                    document.getElementById('lokasi').value = '';
+                    document.getElementById('kontak').value = '';
+                    document.getElementById('jumlah_produk').value = '';
+
+                    // Change button text and onclick event
+                    document.getElementById('button').innerText = 'Tambah';
+                    document.getElementById('button').setAttribute('onclick', 'saveData()');
+                    getSeller();
+                    console.log('Data berhasil diperbarui');
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+
+        const deleteData = async (id) => {
+            try {
+                const text = 'Apakah Anda yakin ingin menghapus data?';
+                if (confirm(text)) {
+                    await axios.delete(`http://103.163.110.11:3031/sellers/${id}`);
+                    getSeller();
+                    console.log('Data berhasil dihapus');
+                }
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+
+        const saveData = async () => {
+            try {
+                const nama_produk = document.getElementById('nama_produk').value;
+                const nama_pedagang = document.getElementById('nama_pedagang').value;
+                const lokasi = document.getElementById('lokasi').value;
+                const kontak = document.getElementById('kontak').value;
+                const jumlah_produk = document.getElementById('jumlah_produk').value;
+
+                // Check if any field is empty
+                if (!nama_produk || !nama_pedagang || !lokasi || !kontak || !jumlah_produk) {
+                    alert('Harap lengkapi semua field sebelum menyimpan data!');
+                    return;
+                }
+
+                await axios.post('http://103.163.110.11:3031/sellers', {
+                    nama_produk: nama_produk,
+                    nama_pedagang: nama_pedagang,
+                    lokasi: lokasi,
+                    kontak: kontak,
+                    jumlah_produk: jumlah_produk
+                });
+
+                // Reset form fields
+                document.getElementById('nama_produk').value = '';
+                document.getElementById('nama_pedagang').value = '';
+                document.getElementById('lokasi').value = '';
+                document.getElementById('kontak').value = '';
+                document.getElementById('jumlah_produk').value = '';
+
+                getSeller();
+                console.log('Data berhasil disimpan');
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+
+    </script>
+
+</body>
+
+</html>
